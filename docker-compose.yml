@@ -1,6 +1,6 @@
 kong:
   container_name: some-kong
-  image: hhy5861/kong-rbac
+  image: hhy5861/kong-rbac:2.1.2
   restart: always
   links:
     - some-kong-postgres:kong-database
@@ -12,9 +12,6 @@ kong:
     - KONG_PROXY_ERROR_LOG=/dev/stderr
     - KONG_ADMIN_ERROR_LOG=/dev/stderr
     - KONG_ADMIN_LISTEN=0.0.0.0:8001
-    - KONG_ADMIN_LISTEN_SSL=0.0.0.0:8444
   ports:
     - 8000:8000
-    - 8443:8443
     - 8001:8001
-    - 8444:8444
