@@ -12,7 +12,8 @@ return {
     up = [[
       CREATE TABLE IF NOT EXISTS rbac_resources (
         id uuid,
-        api_id uuid,
+        service_id uuid,
+        route_id uuid,
         method text,
         upstream_path text,
         description text,
@@ -53,7 +54,7 @@ return {
     ]],
   },
   {
-    name = "2018-05-22-101000_rbac_credentials,
+    name = "2018-05-22-101000_rbac_credentials",
     up = [[
       CREATE TABLE IF NOT EXISTS rbac_credentials(
         id uuid,

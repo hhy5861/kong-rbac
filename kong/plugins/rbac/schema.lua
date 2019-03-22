@@ -3,7 +3,7 @@ local singletons = require "kong.singletons"
 
 local function default_key_names(t)
   if not t.key_names then
-    return { "api_key", "x-token", "token" }
+    return {"x-auth-token", "token", "Authorization"}
   end
 end
 

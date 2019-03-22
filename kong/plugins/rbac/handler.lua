@@ -25,7 +25,7 @@ local _realm = 'Key realm="RBAC"'
 local RBACAuthHandler = BasePlugin:extend()
 
 RBACAuthHandler.PRIORITY = 1003
-RBACAuthHandler.VERSION = "0.1.0"
+RBACAuthHandler.VERSION = "3.0.0"
 
 function RBACAuthHandler:new()
   RBACAuthHandler.super.new(self, "rbac")
@@ -52,14 +52,15 @@ local function load_consumer(consumer_id, anonymous)
   return result
 end
 
-local function load_api_resources(api_id)
+local function load_api_resources(service_id, route_id)
   local cache = singletons.cache
   local dao = singletons.dao
 
-  local resources_cache_key = dao.rbac_resources:cache_key(api_id)
+  local keys = service_id..route_id
+  local resources_cache_key = dao.rbac_resources:cache_key(keys)
   local resources, err = cache:get(resources_cache_key, nil, (function(id)
-    return dao.rbac_resources:find_all({ api_id = id })
-  end), api_id)
+    return dao.rbac_resources:find_all({ service_id = service_id, route_id = route_id })
+  end), service_id, route_id)
   
   if err then
     return responses.send_HTTP_INTERNAL_SERVER_ERROR(err)
@@ -81,8 +82,8 @@ local function set_consumer(consumer, credential)
   end
 end
 
-local function do_rbac(consumer, api)
-  local api_resources = load_api_resources(api.id)
+local function do_rbac(consumer, service_id, route_id)
+  local api_resources = load_api_resources(service_id, route_id)
   if table.getn(api_resources) < 1 then
     return true
   end
@@ -120,8 +121,8 @@ local function do_rbac(consumer, api)
   return ok
 end
 
-local function do_ignoredAccess(apis)
-  local public_resources, err = rbac_functions.get_public_resources(apis)
+local function do_ignoredAccess(service_id, route_id)
+  local public_resources, err = rbac_functions.get_public_resources(service_id, route_id)
   if not err and table.getn(public_resources) > 0 then
     local matched_protected_resource = false
     local r = router.new()
@@ -258,10 +259,11 @@ function RBACAuthHandler:access(conf)
     return
   end
 
-  local apis = ngx.ctx.api
+  local service_id = ngx.ctx.service.id
+  local route_id = ngx.ctx.route.id
   -- check ignored access
   if conf.rbac_enabled then
-    local ok = do_ignoredAccess(apis)
+    local ok = do_ignoredAccess(service_id, route_id)
     if ok then
       return
     end
@@ -296,7 +298,7 @@ function RBACAuthHandler:access(conf)
       return
     end
 
-    local ok, rbac_err = do_rbac(consumer, apis)
+    local ok, rbac_err = do_rbac(consumer, service_id, route_id)
     if rbac_err then
       return responses.send_HTTP_INTERNAL_SERVER_ERROR(rbac_err)
     end

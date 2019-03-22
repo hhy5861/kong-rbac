@@ -4,14 +4,18 @@ return {
     up = [[
       CREATE TABLE IF NOT EXISTS rbac_resources (
         "id" uuid PRIMARY KEY,
-        "api_id" uuid REFERENCES apis (id) ON DELETE CASCADE,
+        "service_id" uuid REFERENCES services (id) ON DELETE CASCADE,
+        "route_id" uuid REFERENCES routes (id) ON DELETE CASCADE,
         "method" varchar(255),
         "upstream_path" varchar(255),
         "description" varchar(255),
         visibility varchar(15) default('protected'),
         created_at timestamp without time zone default (CURRENT_TIMESTAMP(0) at time zone 'utc'),
-        UNIQUE(api_id, method, upstream_path)
+        UNIQUE(service_id, route_id, method, upstream_path)
       );
+
+      CREATE INDEX IF NOT EXISTS "rbac_resources_service_id_idx" ON "rbac_resources" ("consumer_id");
+      CREATE INDEX IF NOT EXISTS "rbac_resources_route_id_idx"   ON "rbac_resources" ("route_id");
 
       CREATE TABLE IF NOT EXISTS rbac_roles (
         "id" uuid PRIMARY KEY,

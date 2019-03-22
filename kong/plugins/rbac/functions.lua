@@ -46,15 +46,15 @@ local function get_root_consumers()
   return {}
 end
 
-local function get_public_resources(api_id)
+local function get_public_resources(service_id, route_id)
   local cache = singletons.cache
   local dao = singletons.dao
 
   local visibility = "public"
-  local resources_public_cache_key = dao.rbac_resources:cache_key(api_id.id..visibility)
+  local resources_public_cache_key = dao.rbac_resources:cache_key(service_id..route_id..visibility)
   local resources_public, err = cache:get(resources_public_cache_key, nil, (function(id)
-    return dao.rbac_resources:find_all({ api_id = api_id.id, visibility = visibility })
-  end), api_id.id)
+    return dao.rbac_resources:find_all({ service_id = service_id, route_id = route_id,  visibility = visibility })
+  end), service_id, route_id)
 
   return resources_public, err
 end
