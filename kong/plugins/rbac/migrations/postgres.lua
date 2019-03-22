@@ -14,7 +14,7 @@ return {
         UNIQUE(service_id, route_id, method, upstream_path)
       );
 
-      CREATE INDEX IF NOT EXISTS "rbac_resources_service_id_idx" ON "rbac_resources" ("consumer_id");
+      CREATE INDEX IF NOT EXISTS "rbac_resources_service_id_idx" ON "rbac_resources" ("service_id");
       CREATE INDEX IF NOT EXISTS "rbac_resources_route_id_idx"   ON "rbac_resources" ("route_id");
 
       CREATE TABLE IF NOT EXISTS rbac_roles (
